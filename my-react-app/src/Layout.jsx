@@ -1,22 +1,35 @@
-import './Layout.css'
+import "./Layout.css"
+import { Link, Outlet, useLocation } from "react-router-dom";
 
-function Layout() {
-  return (
-    <>
-      <nav className="navbar">
-        <div className="navbar-left">SparkHacks</div>
-        <div className="navbar-right">
-          <a href="/">Home</a>
-          <a href="/about">About</a>
-          <a href="/login">Login</a>
-        </div>
-      </nav>
+function Layout(){
+    //let currentLocation = useLocation();
 
-      <main className="page-content">
-        <p>Test</p>
-      </main>
-    </>
-  )
+    return(
+        <>
+            <div id="Layout">
+                <div className="NavBar">
+                    <div className="NavBarElements">
+                        <Link style={{ textDecoration: "none" }} to="/">
+                                <p className="navBarFont">test</p>
+                        </Link>
+                        <Link style={{ textDecoration: "none" }} to="/creators">
+                                <p className="navBarFont">creators</p>
+                        </Link>
+                        <Link style={{ textDecoration: "none" }} to="/">
+                                <p className="navBarFont">test</p>
+                        </Link>
+                        <Link style={{ textDecoration: "none" }} to="/log-in">
+                                <p className="navBarFont">Log In</p>
+                        </Link>
+                    </div>
+                </div>
+                <div className="display">
+                    <Outlet/>
+                </div>
+            </div>
+
+        </>
+    )
 }
 
 export default Layout

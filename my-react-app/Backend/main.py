@@ -1,7 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
@@ -19,11 +19,103 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    isCreator = db.Column(db.Boolean, default=False, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    public = db.Column(db.Boolean, default=True)
+
+class Portfolios(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(200), nullable=True)
+    user = db.relationship('User', backref=db.backref('portfolios', lazy=True))
+
+class PortfolioItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=False)
+
+    type = db.Column(db.String(20), nullable=False)   # "video", "script", "image", "pdf", etc.
+    url = db.Column(db.String(300), nullable=False)   # where the file is stored
+    title = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.String(300), nullable=True)
+
+    portfolio = db.relationship('Portfolio', backref=db.backref('items', lazy=True))
 
 @socketio.on('connect')
 def handle_connect(auth):
     print("Successful Connect")
+    users = User.query.filter_by(public=True).all()
+
+    user_list = [
+        {
+            "id": u.id,
+            "name": u.name
+        }
+        for u in users
+    ]
+
+    emit('Retrieve_Creators', user_list)
+
+@socketio.on('Login')
+def handle_Login(data):
+    print(data['user'])
+    print(data['password'])
+    queredUser = User.query.filter_by(name=data['user']).first()
+    if queredUser.password == data['password']:
+        print("Successful Login")
+        session['user_id'] = queredUser.id
+
+    else:
+        print("Login")
+    
+@socketio.on('Sign_up')
+def handle_SignUp(data):
+    print(data['username'])
+    print(data['password'])
+
+    queredUser = User.query.filter_by(name=data['username']).first()
+    if queredUser is None:
+        print("Successful sign-Up")
+        new_user = User(name=data['username'], password=data['password'], public=True)
+        db.session.add(new_user)
+        db.session.commit()
+        session['user_id'] = new_user.id
+
+    else:
+        print("Sign-up Failed")
+    
+@socketio.on("get_portfolio")
+def handle_get_portfolio(data):
+    user_id = data['id']
+    portfolio = Portfolios.query.filter_by(user_id=user_id).first()
+
+    if portfolio is None:
+        emit("Retrieve_Portfolios", None)
+        return
+
+    # Get all items belonging to this portfolio
+    items = PortfolioItem.query.filter_by(portfolio_id=portfolio.id).all()
+
+    # Serialize items
+    item_list = [
+        {
+            "id": item.id,
+            "type": item.type,
+            "url": item.url,
+            "title": item.title,
+            "description": item.description
+        }
+        for item in items
+    ]
+
+    # Serialize portfolio + items
+    portfolio_object = {
+        "id": portfolio.id,
+        "name": portfolio.name,
+        "description": portfolio.description,
+        "items": item_list
+    }
+
+    emit("Send_Portfolio", portfolio_object)
 
 
 if __name__ == "__main__":

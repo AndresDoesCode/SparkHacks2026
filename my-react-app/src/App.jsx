@@ -1,28 +1,26 @@
 import { useState } from 'react'
-
+import Login from './Pages/Login.jsx';
 import './App.css'
-import socket from './Socket';
+import { Routes, Route } from "react-router-dom";
+import Layout from './Layout';
+import SignUp from './Pages/SignUp.jsx';
+import MainPage from './Pages/MainPage.jsx';
+import Creators from './Pages/Creators.jsx';
+import Portfolios from './Pages/Portfolios.jsx';
+
 
 function App() {
-  //cool = var
-  //setCool = how you change the variable
-  //useState = 
-  const [cool, setCool] = useState(0)
-
-  function evenBetter() {
-    setCool(prev => prev + 1)
-  }
-
   return (
     <>
-    <div className='background'>
-      <p>{cool}</p>
-      <button onClick={(evenBetter)}>Click me</button>
-      <p className="cool_thing">
-        geygvhcgyevcguyevcegec hello world of html
-      </p>
-    </div>
-
+    <Routes>
+      <Route path='/' element={<Layout/>}>
+        <Route index element={<MainPage/>}/>
+        <Route path='sign-up' element={<SignUp/>}/>
+        <Route path='log-in' element={<Login/>}/>
+        <Route path='creators' element={<Creators/>}/>
+        <Route path='creators/:id' element={<Portfolios/>}/>
+      </Route>
+    </Routes>
     </>
   )
 

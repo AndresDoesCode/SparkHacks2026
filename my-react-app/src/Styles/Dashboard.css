@@ -1,18 +1,105 @@
-.DasboardContainer{
-    height:100%;
+.DasboardContainer {
+    height: 100%;
     display: flex;
     flex-direction: row;
-    /* justify-content: center; */
     align-items: center;
-    /*Background*/
     background-image: url("../../assets/MainPage.jpg");
     background-position: center;
     background-repeat: repeat;
+    background-size: cover; /* Make background cover whole screen */
+    padding: 2em; /* give some breathing space */
 }
 
-.DasboardLeft{
-    background-color: blue;
-    height:90%;
-    width: 10%;
-    margin:1em;
+/* LEFT PANEL */
+.DashboardLeft {
+    background-image: linear-gradient(to bottom, #2c3e50, #34495e, #2c3e50);
+    height: 90%;
+    width: 15%;
+    margin: 1em;
+    padding: 2em 1em; /* more padding for neatness */
+    border-radius: 15px;
+    box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.DashboardLeft:hover {
+    transform: scale(1.03); /* subtle hover effect */
+}
+
+.DashboardLeft p {
+    margin: 0.8em 0;
+    font-weight: bold;
+    text-align: center;
+    color: #ecf0f1;
+    cursor: default;
+    transition: color 0.2s ease;
+}
+
+.DashboardLeft p:hover {
+    color: #f1c40f; /* highlight on hover */
+}
+
+/* RIGHT PANEL */
+.DashboardRight {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2em;
+    border-radius: 15px;
+    box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Blog input */
+.DashboardRight input {
+    width: 60%;
+    padding: 0.8em;
+    margin: 1em 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 1em;
+    outline: none;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.DashboardRight input:focus {
+    box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+/* Button styling */
+.DashboardRight button {
+    padding: 0.8em 2em;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 0.5em;
+    transition: all 0.3s ease;
+}
+
+.DashboardRight button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+    box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Title */
+.DashboardRight h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    color: #fff;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    margin-bottom: 1em;
 }

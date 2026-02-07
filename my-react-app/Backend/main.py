@@ -12,7 +12,7 @@ import secrets
 #psql -U postgres -p 4000
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode ="gevent")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode ="gevent", manage_session=True)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:676767@localhost:4000/sparkhacksdb"
 
@@ -125,6 +125,10 @@ def handle_SignUp(data):
         emit("Sign_up_error", "Sign-up Failed")
         print("Sign-up Failed")
     
+@socketio.on("get_info")
+def handle_get_info():
+    user_id = session.get("user_id")
+    emit("recieve_data", {"username": User.query.get(user_id).name, "Followers":User.query.get(user_id).followers_count, "preferences": User.query.get(user_id).preferences, "ArtistType": User.query.get(user_id).ArtistType})
 @socketio.on("get_portfolio")
 def handle_get_portfolio(data):
     # Validate data is a dict with 'id' key
@@ -164,22 +168,19 @@ def handle_get_portfolio(data):
 
     emit("Send_Portfolio", portfolio_object)
 
-@socketio.on("create_portfolio")
+@socketio.on("create-portfolio")
 def handle_create_portfolio(data):
-    user_id = data.get("user_id")
+    user_id = session.get("user_id")
+
     name = data.get("name")
     description = data.get("description")
 
-    if not user_id or not name:
-        emit("create_portfolio_failed", "Missing required fields")
-        return
-
     new_portfolio = Portfolios(user_id=user_id, name=name, description=description)
+    print("Success")
     db.session.add(new_portfolio)
     db.session.commit()
 
-    emit("create_portfolio_success", {"id": new_portfolio.id, "name": new_portfolio.name, "description": new_portfolio.description})
-    
+
 @socketio.on("follow_user")
 def handle_follow_user(data):
 

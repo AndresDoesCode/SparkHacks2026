@@ -31,14 +31,14 @@ class Portfolios(db.Model):
 
 class PortfolioItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=False)
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolios.id'), nullable=False)
 
     type = db.Column(db.String(20), nullable=False)   # "video", "script", "image", "pdf", etc.
     url = db.Column(db.String(300), nullable=False)   # where the file is stored
     title = db.Column(db.String(100), nullable=True)
     description = db.Column(db.String(300), nullable=True)
 
-    portfolio = db.relationship('Portfolio', backref=db.backref('items', lazy=True))
+    portfolio = db.relationship('Portfolios', backref=db.backref('items', lazy=True))
 
 @socketio.on('connect')
 def handle_connect(auth):

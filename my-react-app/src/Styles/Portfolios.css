@@ -1,0 +1,117 @@
+.portfolio-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    padding: 2rem;
+}
+
+.portfolio-header {
+    text-align: center;
+    padding: 3rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.portfolio-header h1 {
+    font-size: 3em;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #fff, #ddd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.portfolio-description {
+    font-size: 1.3em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-item-count {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.portfolio-content {
+    margin-top: 2rem;
+}
+
+.portfolio-grid {
+    column-count: 3;
+    column-gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.portfolio-grid .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+}
+
+/* Loading state - reuse styles from MainPage */
+.portfolio-page .loading-container {
+    text-align: center;
+    padding: 6rem 2rem;
+}
+
+.portfolio-page .loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.portfolio-page .error-container {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.portfolio-page .error-container h2 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+/* Empty state */
+.portfolio-page .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.portfolio-page .empty-state h2 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .portfolio-grid { column-count: 2; }
+}
+
+@media (max-width: 768px) {
+    .portfolio-grid {
+        column-count: 1;
+        padding: 1.5rem;
+    }
+
+    .portfolio-header h1 {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .portfolio-header h1 {
+        font-size: 1.5em;
+    }
+}

@@ -85,11 +85,17 @@ def handle_SignUp(data):
     
 @socketio.on("get_portfolio")
 def handle_get_portfolio(data):
+    # Validate data is a dict with 'id' key
+    if not isinstance(data, dict) or 'id' not in data or data['id'] is None:
+        print(f"Invalid portfolio request data: {data}")
+        emit("Send_Portfolio", None)
+        return
+
     user_id = data['id']
     portfolio = Portfolios.query.filter_by(user_id=user_id).first()
 
     if portfolio is None:
-        emit("Retrieve_Portfolios", None)
+        emit("Send_Portfolio", None)
         return
 
     # Get all items belonging to this portfolio
@@ -110,6 +116,7 @@ def handle_get_portfolio(data):
     # Serialize portfolio + items
     portfolio_object = {
         "id": portfolio.id,
+        "user_id": portfolio.user_id,  # Add user_id so frontend can link to creator
         "name": portfolio.name,
         "description": portfolio.description,
         "items": item_list

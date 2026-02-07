@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import socket from '../Components/Socket';
+import { mockCreators } from '../data/mockData';
 import '../Styles/Creators.css';
 import { Link } from "react-router-dom";
 
@@ -8,14 +8,9 @@ function Creators(){
 
     useEffect(() =>
     {
-        socket.on("Retrieve_Creators", (Creators) => {
-            setCreators(Creators); 
-            console.log(Creators);
-        })
-
-        return () => {
-            socket.off('Retrieve_Creators');
-        }
+        // Load creators from mock data
+        setCreators(mockCreators);
+        console.log('Loaded creators:', mockCreators);
     }, [])
 
     return(

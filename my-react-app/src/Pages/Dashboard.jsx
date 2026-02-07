@@ -1,18 +1,13 @@
+import '../Styles/Dashboard.css'
+
 function Dashboard() {
   const token = localStorage.getItem("token");
 
   return (
     <div style={{ padding: "2rem" }}>
-        <h1 style={{color: "red"}}>Dashboard</h1>
+        
 
-        <p>You are logged in 🎉</p>
-
-        <p>
-            <strong>Token present:</strong>{" "}
-            {token ? "Yes" : "No"}
-        </p>
-
-        <button
+        {/* <button
         onClick={() => {
             
             localStorage.removeItem("token");
@@ -20,7 +15,7 @@ function Dashboard() {
         }}
         >
         Logout
-        </button>
+        </button> */}
     </div>
   );
 }

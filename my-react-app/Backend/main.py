@@ -46,18 +46,23 @@ class User(db.Model):
     
 
 class Portfolios(db.Model):
+    __tablename__ = "portfolios"
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(200), nullable=True)
+
     user = db.relationship('User', backref=db.backref('portfolios', lazy=True))
 
 class PortfolioItem(db.Model):
+    __tablename__ = "portfolio_items"
+
     id = db.Column(db.Integer, primary_key=True)
     portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolios.id'), nullable=False)
 
-    type = db.Column(db.String(20), nullable=False)   # "video", "script", "image", "pdf", etc.
-    url = db.Column(db.String(300), nullable=False)   # where the file is stored
+    type = db.Column(db.String(20), nullable=False)     # video, script, image, pdf
+    url = db.Column(db.String(300), nullable=False)
     title = db.Column(db.String(100), nullable=True)
     description = db.Column(db.String(300), nullable=True)
 
@@ -122,17 +127,37 @@ def handle_SignUp(data):
     
 @socketio.on("get_portfolio")
 def handle_get_portfolio(data):
-    user_id = data['id']
+    # Defensive: ensure data is a dict
+    if isinstance(data, str):
+        # frontend sent: socket.emit("get_portfolio", "1")
+        try:
+            user_id = int(data)
+        except ValueError:
+            emit("Retrieve_Portfolios", None)
+            return
+    elif isinstance(data, dict):
+        user_id = data.get("id")
+    else:
+        emit("Retrieve_Portfolios", None)
+        return
+
+    # Ensure user_id is valid
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        emit("Retrieve_Portfolios", None)
+        return
+
+    # Fetch portfolio
     portfolio = Portfolios.query.filter_by(user_id=user_id).first()
 
     if portfolio is None:
         emit("Retrieve_Portfolios", None)
         return
 
-    # Get all items belonging to this portfolio
+    # Fetch items
     items = PortfolioItem.query.filter_by(portfolio_id=portfolio.id).all()
 
-    # Serialize items
     item_list = [
         {
             "id": item.id,
@@ -144,7 +169,6 @@ def handle_get_portfolio(data):
         for item in items
     ]
 
-    # Serialize portfolio + items
     portfolio_object = {
         "id": portfolio.id,
         "name": portfolio.name,

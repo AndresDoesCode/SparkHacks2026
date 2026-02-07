@@ -164,6 +164,22 @@ def handle_get_portfolio(data):
 
     emit("Send_Portfolio", portfolio_object)
 
+@socketio.on("create_portfolio")
+def handle_create_portfolio(data):
+    user_id = data.get("user_id")
+    name = data.get("name")
+    description = data.get("description")
+
+    if not user_id or not name:
+        emit("create_portfolio_failed", "Missing required fields")
+        return
+
+    new_portfolio = Portfolios(user_id=user_id, name=name, description=description)
+    db.session.add(new_portfolio)
+    db.session.commit()
+
+    emit("create_portfolio_success", {"id": new_portfolio.id, "name": new_portfolio.name, "description": new_portfolio.description})
+    
 @socketio.on("follow_user")
 def handle_follow_user(data):
 

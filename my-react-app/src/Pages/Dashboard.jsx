@@ -3,19 +3,18 @@ import '../Styles/Dashboard.css'
 function Dashboard() {
   const token = localStorage.getItem("token");
 
-  return (
-    <div style={{ padding: "2rem" }}>
-        
+  const user = {
+    "name":"Osama",
+    "id": "67",
+    "Bio":"I love 67",
+    "profession": "unemployed"
+  }
 
-        {/* <button
-        onClick={() => {
-            
-            localStorage.removeItem("token");
-            window.location.href = "/log-in";
-        }}
-        >
-        Logout
-        </button> */}
+  return (
+    <div className='DasboardContainer'>
+      <div className='DasboardLeft'>
+        <p>Test</p>
+      </div>
     </div>
   );
 }

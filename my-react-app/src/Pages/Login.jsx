@@ -1,11 +1,23 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import socket from '../Components/Socket';
 import '../Styles/Login.css';
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login(){
+    const navigate = useNavigate();
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
+    useEffect(()=>{
+        socket.on("Login_success", ({ token }) => {
+            // store token
+            localStorage.setItem("token", token);
+
+            // redirect
+            navigate("/dashboard");
+        });
+    })
+
+
     function onClickHandler(){
         socket.emit('Login', {user, password});
     }

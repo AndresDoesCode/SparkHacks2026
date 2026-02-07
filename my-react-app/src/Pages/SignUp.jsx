@@ -1,4 +1,4 @@
-import { useState}  from "react";
+import { useState, useEffect}  from "react";
 import socket from '../Components/Socket';
 import '../Styles/SignUp.css';
 import {useNavigate} from 'react-router-dom';
@@ -9,6 +9,28 @@ function SignUp(){
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
+    useEffect(() => {
+        socket.on("Sign_up_success", ({ token }) => {
+            // store token
+            localStorage.setItem("token", token);
+
+            // redirect
+            navigate("/dashboard");
+        });
+
+        socket.on("Sign_up_error", (message) => {
+            alert(message);
+        });
+
+        // cleanup listeners
+        return () => {
+            socket.off("Sign_up_success");
+            socket.off("Sign_up_error");
+        };
+    }, [navigate]);
+
+
+
     const usernameChange = ({target}) => {
         setUserName(target.value); // update state when input changes
     };
@@ -18,6 +40,9 @@ function SignUp(){
 
     function onClickHandler(){
         socket.emit('Sign_up', {username, password});
+        // localStorage.setItem("token", response.token);
+
+
         
         // navigate("/")
 

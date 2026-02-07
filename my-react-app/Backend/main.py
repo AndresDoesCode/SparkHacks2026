@@ -5,6 +5,8 @@ from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
+import secrets
+
 
 
 #psql -U postgres -p 4000
@@ -16,11 +18,32 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:676767@localhost:
 
 db = SQLAlchemy(app)
 
+followers = db.Table(
+    'followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(120), nullable=False)
     public = db.Column(db.Boolean, default=True)
+    token = db.Column(db.String(100), unique=True, nullable=True)
+    
+    preferences = db.Column(db.String(100), default="General")
+    ArtistType = db.Column(db.String(100), default="Viewer")
+    followers_count = db.Column(db.Integer, default=0)
+
+    following = db.relationship(
+    'User',
+    secondary=followers,
+    primaryjoin=id == followers.c.follower_id,
+    secondaryjoin=id == followers.c.followed_id,
+    backref='followers'
+    )
+
+    
 
 class Portfolios(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,14 +54,15 @@ class Portfolios(db.Model):
 
 class PortfolioItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=False)
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolios.id'), nullable=False)
 
     type = db.Column(db.String(20), nullable=False)   # "video", "script", "image", "pdf", etc.
     url = db.Column(db.String(300), nullable=False)   # where the file is stored
     title = db.Column(db.String(100), nullable=True)
     description = db.Column(db.String(300), nullable=True)
 
-    portfolio = db.relationship('Portfolio', backref=db.backref('items', lazy=True))
+    portfolio = db.relationship('Portfolios', backref=db.backref('items', lazy=True))
+
 
 @socketio.on('connect')
 def handle_connect(auth):
@@ -48,7 +72,9 @@ def handle_connect(auth):
     user_list = [
         {
             "id": u.id,
-            "name": u.name
+            "name": u.name,
+            "ArtistType": u.ArtistType,
+            "Followers": u.followers_count
         }
         for u in users
     ]
@@ -60,9 +86,17 @@ def handle_Login(data):
     print(data['user'])
     print(data['password'])
     queredUser = User.query.filter_by(name=data['user']).first()
+
+    if queredUser is None:
+        print("Login Failed: User not found")
+        emit("Login_failed", "User not found")
+        return
+
+
     if queredUser.password == data['password']:
         print("Successful Login")
         session['user_id'] = queredUser.id
+        emit("Login_success", queredUser.token)
 
     else:
         print("Login")
@@ -75,12 +109,15 @@ def handle_SignUp(data):
     queredUser = User.query.filter_by(name=data['username']).first()
     if queredUser is None:
         print("Successful sign-Up")
-        new_user = User(name=data['username'], password=data['password'], public=True)
+        new_user = User(name=data['username'], password=data['password'], public=True, token = generate_token())
         db.session.add(new_user)
         db.session.commit()
         session['user_id'] = new_user.id
+        #Signing up
+        emit("Sign_up_success", new_user.token)
 
     else:
+        emit("Sign_up_error", "Sign-up Failed")
         print("Sign-up Failed")
     
 @socketio.on("get_portfolio")
@@ -117,6 +154,33 @@ def handle_get_portfolio(data):
 
     emit("Send_Portfolio", portfolio_object)
 
+@socketio.on("follow_user")
+def handle_follow_user(data):
+
+    follower_id = data["follower_id"]
+    followed_id = data["followed_id"]
+
+    follower = User.query.get(follower_id)
+    followed = User.query.get(followed_id)
+
+    if follower is None or followed is None:
+        emit("follow_failed", "Invalid user IDs")
+        return
+
+    # Prevent duplicates
+    if followed not in follower.following:
+        follower.following.append(followed)
+        followed.followers_count += 1
+        db.session.commit()
+
+
+
+    follower.following.append(followed)
+    db.session.commit()
+
+#generate the token
+def generate_token():
+    return secrets.token_urlsafe(32)
 
 if __name__ == "__main__":
     with app.app_context():

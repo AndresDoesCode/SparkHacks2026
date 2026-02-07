@@ -3,36 +3,36 @@ import socket from '../Components/Socket';
 import '../Styles/Creators.css';
 import { Link } from "react-router-dom";
 
-function Creators(){
+function Creators() {
     const [creators, setCreators] = useState([]);
 
-    useEffect(() =>
-    {
-        socket.on("Retrieve_Creators", (Creators) => {
-            setCreators(Creators); 
-            console.log(Creators);
-        })
+    useEffect(() => {
+        socket.on("Retrieve_Creators", (creators) => {
+            setCreators(creators);
+            console.log(creators);
+        });
 
         return () => {
-            socket.off('Retrieve_Creators');
-        }
-    }, [])
+            socket.off("Retrieve_Creators");
+        };
+    }, []);
 
-    return(
+    return (
         <div className="creatorsContainer">
-            <h1>{"Creators"}</h1>
-            {/* <pre className="test">{JSON.stringify(creators, null, 2)}</pre> */}
+            <h1>Creators</h1>
             <div className="creatorScroll">
                 {creators.map((creator) => (
-                <div key={creator.id}>
-                    <Link to={`creators${creator.id}`}>
-                        <p>name: {creator.name}</p>
+                    <div className="creatorBox">
+                    <Link key={creator.id || creator.name} to={`/creators/${creator.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <p className="name">{creator.name}</p>
+                            <p className="profession">{creator.ArtistType}</p>
+                            <p className="followers">Followers: {creator.Followers}</p>
                     </Link>
-                </div>
+                    </div>
                 ))}
             </div>
         </div>
-    )
-
+    );
 }
+
 export default Creators;

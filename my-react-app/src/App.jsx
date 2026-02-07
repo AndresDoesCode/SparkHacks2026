@@ -7,6 +7,10 @@ import SignUp from './Pages/SignUp.jsx';
 import MainPage from './Pages/MainPage.jsx';
 import Creators from './Pages/Creators.jsx';
 import Portfolios from './Pages/Portfolios.jsx';
+import ProtectedRoute from './Pages/ProtectedRoute.jsx';
+import PublicRoute from './Pages/PublicRoute.jsx';
+import Dashboard from './Pages/Dashboard.jsx';
+
 
 
 function App() {
@@ -15,10 +19,20 @@ function App() {
     <Routes>
       <Route path='/' element={<Layout/>}>
         <Route index element={<MainPage/>}/>
-        <Route path='sign-up' element={<SignUp/>}/>
-        <Route path='log-in' element={<Login/>}/>
+        
         <Route path='creators' element={<Creators/>}/>
         <Route path='creators/:id' element={<Portfolios/>}/>
+        {/* If Logged in */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          
+        </Route>
+        {/* If not loged in */}
+        
+        <Route element={<PublicRoute/>}>
+          <Route path='sign-up' element={<SignUp/>}/>
+          <Route path='log-in' element={<Login/>}/>
+        </Route>        
       </Route>
     </Routes>
     </>

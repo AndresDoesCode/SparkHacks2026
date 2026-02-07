@@ -1,0 +1,45 @@
+body{
+    margin:0;
+    padding: 0;
+}
+
+
+/* Top navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 24px;
+  background-color: #0f172a;
+  color: white;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.navbar-left {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.navbar-right a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.navbar-right a:hover {
+  text-decoration: underline;
+}
+
+/* Page content spacing */
+.page-content {
+  padding-top: 60px; /* prevents navbar overlap */
+}

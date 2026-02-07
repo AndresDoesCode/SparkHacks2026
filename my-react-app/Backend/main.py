@@ -127,32 +127,17 @@ def handle_SignUp(data):
     
 @socketio.on("get_portfolio")
 def handle_get_portfolio(data):
-    # Defensive: ensure data is a dict
-    if isinstance(data, str):
-        # frontend sent: socket.emit("get_portfolio", "1")
-        try:
-            user_id = int(data)
-        except ValueError:
-            emit("Retrieve_Portfolios", None)
-            return
-    elif isinstance(data, dict):
-        user_id = data.get("id")
-    else:
-        emit("Retrieve_Portfolios", None)
+    # Validate data is a dict with 'id' key
+    if not isinstance(data, dict) or 'id' not in data or data['id'] is None:
+        print(f"Invalid portfolio request data: {data}")
+        emit("Send_Portfolio", None)
         return
 
-    # Ensure user_id is valid
-    try:
-        user_id = int(user_id)
-    except (TypeError, ValueError):
-        emit("Retrieve_Portfolios", None)
-        return
-
-    # Fetch portfolio
+    user_id = data['id']
     portfolio = Portfolios.query.filter_by(user_id=user_id).first()
 
     if portfolio is None:
-        emit("Retrieve_Portfolios", None)
+        emit("Send_Portfolio", None)
         return
 
     # Fetch items
@@ -171,6 +156,7 @@ def handle_get_portfolio(data):
 
     portfolio_object = {
         "id": portfolio.id,
+        "user_id": portfolio.user_id,  # Add user_id so frontend can link to creator
         "name": portfolio.name,
         "description": portfolio.description,
         "items": item_list

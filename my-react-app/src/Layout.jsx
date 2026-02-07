@@ -6,6 +6,13 @@ import { useState, useEffect } from "react";
 function Layout(){
     //let currentLocation = useLocation();
     const [name, setName] = useState(localStorage.getItem("token") ? "Dashboard" : "Log In");
+    const location = useLocation();
+
+    useEffect(() => {
+        // Update name whenever location changes
+        setName(localStorage.getItem("token") ? "Dashboard" : "Log In");
+    }, [location]);
+
     useEffect(() => {
         const handleStorageChange = () => {
             setName(localStorage.getItem("token") ? "Dashboard" : "Log In");

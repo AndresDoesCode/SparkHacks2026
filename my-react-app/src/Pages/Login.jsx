@@ -8,14 +8,24 @@ function Login(){
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     useEffect(()=>{
-        socket.on("Login_success", ({ token }) => {
+        socket.on("Login_success", (token) => {
             // store token
             localStorage.setItem("token", token);
 
             // redirect
             navigate("/dashboard");
         });
-    })
+
+        socket.on("Login_failed", (message) => {
+            alert(message || "Login failed");
+        });
+
+        // cleanup listeners
+        return () => {
+            socket.off("Login_success");
+            socket.off("Login_failed");
+        };
+    }, [navigate])
 
 
     function onClickHandler(){

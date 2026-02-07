@@ -68,6 +68,16 @@ class PortfolioItem(db.Model):
 
     portfolio = db.relationship('Portfolios', backref=db.backref('items', lazy=True))
 
+class Blog(db.Model):
+    __tablename__ = "blogs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    user = db.relationship('User', backref=db.backref('blogs', lazy=True))
+
 
 @socketio.on('connect')
 def handle_connect(auth):
@@ -126,9 +136,28 @@ def handle_SignUp(data):
         print("Sign-up Failed")
     
 @socketio.on("get_info")
-def handle_get_info():
-    user_id = session.get("user_id")
-    emit("recieve_data", {"username": User.query.get(user_id).name, "Followers":User.query.get(user_id).followers_count, "preferences": User.query.get(user_id).preferences, "ArtistType": User.query.get(user_id).ArtistType})
+def handle_get_info(data):
+    # Try to get token from data, fallback to session
+    token = data.get("token") if isinstance(data, dict) else None
+    user = None
+
+    if token:
+        user = User.query.filter_by(token=token).first()
+    else:
+        user_id = session.get("user_id")
+        if user_id:
+            user = User.query.get(user_id)
+
+    if user is None:
+        emit("recieve_data", None)
+        return
+
+    emit("recieve_data", {
+        "username": user.name,
+        "Followers": user.followers_count,
+        "preferences": user.preferences,
+        "ArtistType": user.ArtistType
+    })
 @socketio.on("get_portfolio")
 def handle_get_portfolio(data):
     # Validate data is a dict with 'id' key
@@ -204,6 +233,59 @@ def handle_follow_user(data):
 
     follower.following.append(followed)
     db.session.commit()
+
+@socketio.on("post_blog")
+def handle_post_blog(data):
+    token = data.get("token")
+    content = data.get("content")
+
+    if not token or not content:
+        emit("blog_post_failed", "Missing token or content")
+        return
+
+    user = User.query.filter_by(token=token).first()
+
+    if user is None:
+        emit("blog_post_failed", "Invalid user")
+        return
+
+    new_blog = Blog(user_id=user.id, content=content)
+    db.session.add(new_blog)
+    db.session.commit()
+
+    emit("blog_post_success", {
+        "id": new_blog.id,
+        "content": new_blog.content,
+        "created_at": new_blog.created_at.isoformat()
+    })
+
+@socketio.on("get_user_blogs")
+def handle_get_user_blogs(data):
+    token = data.get("token")
+
+    if not token:
+        emit("receive_blogs", [])
+        return
+
+    user = User.query.filter_by(token=token).first()
+
+    if user is None:
+        emit("receive_blogs", [])
+        return
+
+    blogs = Blog.query.filter_by(user_id=user.id).order_by(Blog.created_at.desc()).all()
+
+    blog_list = [
+        {
+            "id": blog.id,
+            "content": blog.content,
+            "created_at": blog.created_at.isoformat(),
+            "username": user.name
+        }
+        for blog in blogs
+    ]
+
+    emit("receive_blogs", blog_list)
 
 #generate the token
 def generate_token():

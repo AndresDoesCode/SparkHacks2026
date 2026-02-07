@@ -10,7 +10,7 @@ function SignUp(){
     const navigate = useNavigate();
 
     useEffect(() => {
-        socket.on("Sign_up_success", ({ token }) => {
+        socket.on("Sign_up_success", (token) => {
             // store token
             localStorage.setItem("token", token);
 

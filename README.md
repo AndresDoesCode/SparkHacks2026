@@ -147,22 +147,11 @@ The backend (`main.py`) creates all these tables automatically when you first ru
 
 ## Features We're Proud Of
 
-✅ Real-time everything (no page refreshes needed)
-✅ Support for multiple content types in portfolios
-✅ Clean, simple interface
-✅ Follow system that works instantly
-✅ Personal dashboards for each user
-
----
-
-## What Could Be Better
-
-If we had more time, we'd add:
-- Direct messaging between creators
-- Image upload (currently uses URLs)
-- Search and filter features
-- Mobile version
-- Notifications
+- Real-time everything (no page refreshes needed)
+- Support for multiple content types in portfolios
+- Clean, simple interface
+- Follow system that works instantly
+- Personal dashboards for each user
 
 ---
 
@@ -184,5 +173,3 @@ Built during SparkHacks 2026 by a team that learned a lot about real-time web ap
 ## Notes
 
 This was a hackathon project, so some parts are a bit rough around the edges. But the core features work and it was a great learning experience!
-
-**Made with 💙 for SparkHacks 2026**
